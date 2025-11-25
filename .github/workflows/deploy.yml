@@ -16,7 +16,7 @@ jobs:
       - name: Deploy Docker Compose Stack
         run: |
           echo "Starting deployment..."
-          docker compose up -d --build
+          docker compose up -d --build --force-recreate
           echo "Deployment complete."
 
       - name: Prune Old Docker Images
