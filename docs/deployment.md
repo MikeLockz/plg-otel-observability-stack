@@ -21,7 +21,7 @@ Copy the script below, paste it into your Proxmox host's shell, and **update the
 
 # ==> PLEASE CONFIGURE THESE VARIABLES <==
 LXID=900                                  # The ID of your LXC container.
-GH_RUNNER_TOKEN="AAGCU2VBW2P7ZQV37BDHULTJEYFAA"         # Paste the token from GitHub here.
+GH_RUNNER_TOKEN="YOUR_TOKEN_HERE"         # Paste the token from GitHub here.
 GH_OWNER="MikeLockz"                      # Your GitHub username or organization.
 GH_REPO="plg-otel-observability-stack"    # Your GitHub repository name.
 # ==> END OF CONFIGURATION <==
@@ -32,32 +32,38 @@ RUNNER_DIR="/home/$RUNNER_USER/actions-runner"
 RUNNER_VERSION="2.311.0" # You can update this to the latest version found on the GitHub runners page.
 
 
-echo "--- [1/7] Installing dependencies (sudo, curl) in LXC $LXID ---"
+echo "--- [1/9] Installing dependencies (sudo, curl) in LXC $LXID ---"
 pct exec $LXID -- bash -c "apt-get update && apt-get install -y sudo curl"
 
-echo "--- [2/7] Creating user '$RUNNER_USER' ---"
+echo "--- [2/9] Configuring Docker to use VFS storage driver ---"
+pct exec $LXID -- bash -c "echo '{\"storage-driver\": \"vfs\"}' > /etc/docker/daemon.json"
+
+echo "--- [3/9] Restarting Docker service to apply changes ---"
+pct exec $LXID -- systemctl restart docker
+
+echo "--- [4/9] Creating user '$RUNNER_USER' ---"
 pct exec $LXID -- bash -c "adduser --disabled-password --gecos '' $RUNNER_USER && usermod -aG docker $RUNNER_USER"
 
-echo "--- [3/7] Configuring passwordless sudo for '$RUNNER_USER' ---"
+echo "--- [5/9] Configuring passwordless sudo for '$RUNNER_USER' ---"
 pct exec $LXID -- bash -c "echo '$RUNNER_USER ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/github-runner"
 
-echo "--- [4/7] Creating runner directory ---"
+echo "--- [6/9] Creating runner directory ---"
 pct exec $LXID -- bash -c "mkdir -p $RUNNER_DIR && chown $RUNNER_USER:$RUNNER_USER $RUNNER_DIR"
 
-echo "--- [5/7] Downloading and extracting GitHub Runner ---"
+echo "--- [7/9] Downloading and extracting GitHub Runner ---"
 pct exec $LXID -- sudo -u $RUNNER_USER -s /bin/bash -c " \
   cd $RUNNER_DIR && \
   curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz && \
   tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
 "
 
-echo "--- [6/7] Configuring runner ---"
+echo "--- [8/9] Configuring runner ---"
 pct exec $LXID -- sudo -u $RUNNER_USER -s /bin/bash -c " \
   cd $RUNNER_DIR && \
-  ./config.sh --unattended --url https://github.com/$GH_OWNER/$GH_REPO --token $GH_RUNNER_TOKEN --name lxc-runner-$LXID --work _work \
+  ./config.sh --unattended --url https://github.com/$GH_OWNER/$GH_REPO --token $GH_RUNNER_TOKEN --name lxc-runner-$LXID-2 --work _work \
 "
 
-echo "--- [7/7] Installing and starting runner service ---"
+echo "--- [9/9] Installing and starting runner service ---"
 # Note: The 'install' command requires the username as an argument if not run interactively.
 pct exec $LXID -- bash -c "cd $RUNNER_DIR && ./svc.sh install $RUNNER_USER && ./svc.sh start"
 
@@ -68,12 +74,11 @@ echo "Then, check your GitHub repository's 'Runners' settings to see the new run
 ```
 
 ### Script Explanation
-*   **New:** It now installs `sudo` and `curl` as the first step.
-*   It creates a dedicated user (`github-runner`) inside the LXC.
-*   **New:** It creates a file in `/etc/sudoers.d/` to grant the `github-runner` user passwordless `sudo` privileges, which is required for non-interactive scripting.
-*   It downloads and extracts the official GitHub Runner software.
-*   It uses the `--unattended` flag to automatically configure the runner.
-*   It installs and starts the runner as a `systemd` service.
+*   It installs `sudo` and `curl`.
+*   **New:** It configures the Docker daemon to use the `vfs` storage driver, which is more compatible with LXC environments, and restarts Docker.
+*   It creates a dedicated user (`github-runner`).
+*   It creates a file in `/etc/sudoers.d/` to grant the `github-runner` user passwordless `sudo` privileges.
+*   It downloads, configures, and installs the GitHub Runner as a `systemd` service.
 
 
 ## 2. Configuring GitHub Repository Settings
