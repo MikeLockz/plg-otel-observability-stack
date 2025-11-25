@@ -9,9 +9,15 @@ jobs:
   deploy:
     name: Deploy to LXC
     runs-on: self-hosted
+    env:
+      APP_STACK_HOST_IP: ${{ secrets.APP_STACK_HOST_IP }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Substitute Env Variables in Prometheus Config
+        run: |
+          envsubst < config/prometheus.yml > config/prometheus.yml.tmp && mv config/prometheus.yml.tmp config/prometheus.yml
 
       - name: Deploy Docker Compose Stack
         run: |
