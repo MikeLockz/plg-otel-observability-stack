@@ -1,5 +1,3 @@
-version: '3.8'
-
 networks:
   observability:
     driver: bridge
@@ -17,6 +15,8 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+    security_opt:
+      - "seccomp=unconfined"
     networks:
       - observability
     restart: unless-stopped
@@ -30,6 +30,8 @@ services:
       - ./config/loki-config.yml:/etc/loki/local-config.yaml
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
+    security_opt:
+      - "seccomp=unconfined"
     networks:
       - observability
     restart: unless-stopped
@@ -58,6 +60,8 @@ services:
       - "8889:8889" # Prometheus exporter
     volumes:
       - ./config/otel-collector.yml:/etc/otelcol-contrib/config.yaml
+    security_opt:
+      - "seccomp=unconfined"
     networks:
       - observability
     restart: unless-stopped
