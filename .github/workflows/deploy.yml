@@ -1,0 +1,26 @@
+name: Deploy Observability Stack
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to LXC
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Docker Compose Stack
+        run: |
+          echo "Starting deployment..."
+          docker-compose up -d --build
+          echo "Deployment complete."
+
+      - name: Prune Old Docker Images
+        if: always()
+        run: |
+          echo "Cleaning up old Docker images..."
+          docker image prune -f
