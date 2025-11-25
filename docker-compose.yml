@@ -15,6 +15,7 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning/:/etc/grafana/provisioning/
     security_opt:
       - "seccomp=unconfined"
     networks:
