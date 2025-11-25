@@ -39,7 +39,7 @@ pct create 100 /var/lib/vz/template/cache/debian-12-standard.tar.zst \
   --rootfs local-lvm:20 \
   --net0 name=eth0,bridge=vmbr0,ip=192.168.1.100/24,gw=192.168.1.1 \
   --onboot 1 \
-  --features nesting=1
+  --unprivileged 0
 ```
 *   **`100`**: The VM ID for the new container. You can change this to any available ID.
 *   **`--features nesting=1`**: This is **required** to allow Docker to run inside the LXC.
@@ -48,14 +48,14 @@ pct create 100 /var/lib/vz/template/cache/debian-12-standard.tar.zst \
 
 1.  **Start the container**:
     ```sh
-    pct start 100
+    pct start 900
     ```
 
 2.  **Install Docker and Docker Compose**:
     The following command executes the Docker installation script directly inside the newly created container.
 
     ```sh
-    pct exec 100 -- bash -c " \
+    pct exec 900 -- bash -c " \
       apt-get update && \
       apt-get install -y curl && \
       curl -fsSL https://get.docker.com -o get-docker.sh && \
@@ -69,10 +69,10 @@ pct create 100 /var/lib/vz/template/cache/debian-12-standard.tar.zst \
 
     ```sh
     # Check Docker version
-    pct exec 100 -- docker --version
+    pct exec 900 -- docker --version
 
     # Check Docker Compose version
-    pct exec 100 -- docker compose version
+    pct exec 900 -- docker compose version
     ```
 
 Your LXC container is now prepared and running with Docker and Docker Compose installed. You can now proceed to deploy the observability stack.
