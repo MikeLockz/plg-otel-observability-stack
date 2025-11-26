@@ -47,6 +47,8 @@ services:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     command: --config.file=/etc/prometheus/prometheus.yml
+    env_file:
+      - .env
     security_opt:
       - "seccomp=unconfined"
     networks:
