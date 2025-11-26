@@ -52,7 +52,7 @@
             "type": "loki",
             "uid": "Loki"
           },
-          "expr": "{job != \"\"}",
+          "expr": "{compose_project=\"el-dorado-tanstack\"}",
           "refId": "A"
         }
       ],
