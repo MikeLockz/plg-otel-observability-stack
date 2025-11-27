@@ -59,6 +59,7 @@ services:
   tempo:
     image: grafana/tempo:latest
     container_name: tempo
+
     command: ["-config.file=/etc/tempo.yml"]
     volumes:
       - ./config/tempo-config.yml:/etc/tempo.yml
