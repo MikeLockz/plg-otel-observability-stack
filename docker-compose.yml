@@ -6,6 +6,7 @@ volumes:
   grafana_data:
   loki_data:
   prometheus_data:
+  tempo_data:
 
 services:
   grafana:
@@ -51,6 +52,19 @@ services:
       - .env
     security_opt:
       - "seccomp=unconfined"
+    networks:
+      - observability
+    restart: unless-stopped
+  
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./config/tempo-config.yml:/etc/tempo.yml
+      - tempo_data:/tmp/tempo
+    ports:
+      - "3200:3200"
     networks:
       - observability
     restart: unless-stopped

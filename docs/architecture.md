@@ -4,14 +4,15 @@ This document outlines the architecture of the PLG OTEL Observability Stack, des
 
 ## 1. Component Overview
 
-The stack consists of four primary components, each containerized and managed by Docker Compose:
+The stack consists of five primary components, each containerized and managed by Docker Compose:
 
 *   **LXC Container**: The host environment for the entire stack. It provides the isolated Linux system where Docker is run. All stack ports are mapped to this container's IP address.
 *   **Application**: Any external application running in a separate container or virtual machine. It is configured to send telemetry data (metrics, logs, and traces) to the OpenTelemetry Collector.
-*   **OpenTelemetry Collector (otel-collector)**: The central data ingestion endpoint. It receives telemetry data in OTLP format (gRPC or HTTP), processes it, and routes it to the appropriate backend (Prometheus for metrics, Loki for logs).
+*   **OpenTelemetry Collector (otel-collector)**: The central data ingestion endpoint. It receives telemetry data in OTLP format (gRPC or HTTP), processes it, and routes it to the appropriate backends.
 *   **Prometheus**: A time-series database that scrapes and stores metrics data from the OTel Collector. It is optimized for fast querying and alerting on numerical data.
 *   **Loki**: A log aggregation system designed to store and query logs efficiently. It indexes metadata about logs rather than the full log content, making it cost-effective.
-*   **Grafana**: The visualization layer. It connects to Prometheus and Loki as data sources, allowing you to create dashboards, explore data, and set up alerts.
+*   **Grafana Tempo**: A high-volume, distributed tracing backend. It stores and queries traces received from the OTel Collector.
+*   **Grafana**: The visualization layer. It connects to Prometheus, Loki, and Tempo as data sources, allowing you to create dashboards, explore data, and set up alerts.
 
 ## 2. Data Flow
 
@@ -22,15 +23,18 @@ The data flows through the system in a unidirectional path, from your applicatio
 ```
 +-----------------+      +-------------------------+      +-----------------+
 |   Application   |----->|   OTel Collector        |----->|   Prometheus    |
-| (Separate LXC)  |      |   (gRPC: 4317, HTTP: 4318)  | (Metrics) |      |
-+-----------------+      |                         |      +-------+---------+
+| (Separate LXC)  |      |   (gRPC: 4317, HTTP: 4318)  |      |   (Metrics)     |
++-----------------+      |                         |      +-----------------+
                        |                         |              ^
-                       |                         |              |
-                       +-----------+-------------+              |
-                                   |                            |
+                       |------------------------->|   +-----------------+
+                       |                         |   |   Grafana Tempo |
+                       |------------------------->|   |     (Traces)    |
+                       |                         |   +-----------------+
+                       +-----------+-------------+              ^
+                                   |                            | (Scrapes)
                                    v                            |
                              +-----+------+                     |
-                             |   Loki     |                     | (Scrapes)
+                             |   Loki     |                     |
                              |  (Logs)    |                     |
                              +------------+                     |
                                                                 |
@@ -62,4 +66,5 @@ The OTel Collector is configured with three distinct pipelines to handle differe
 #### c. Traces Pipeline
 1.  **Receiver**: The `otlp` receiver accepts trace data.
 2.  **Processor**: The `batch` processor groups the traces.
-3.  **Exporter**: Currently, traces are only sent to the `debug` exporter. This allows you to see trace data in the collector's logs for debugging but does not store them in a backend. A full tracing backend like Jaeger or Tempo could be added in the future.
+3.  **Exporter**: The `otlp/tempo` exporter sends traces to Grafana Tempo for long-term storage.
+4.  **Exporter (Debug)**: The `debug` exporter logs the trace data to the console for debugging purposes.
