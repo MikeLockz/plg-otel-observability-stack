@@ -73,7 +73,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(games_active{service_name=\"el-dorado-server\"})",
+                    "expr": "sum(games_active{job=\"el-dorado-server\"})",
                     "legendFormat": "__auto",
                     "refId": "A"
                 }
@@ -133,7 +133,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(games_created_total{service_name=\"el-dorado-server\"})",
+                    "expr": "sum(games_created_total{job=\"el-dorado-server\"})",
                     "legendFormat": "__auto",
                     "refId": "A"
                 }
@@ -193,7 +193,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(games_completed_total{service_name=\"el-dorado-server\"})",
+                    "expr": "sum(games_completed_total{job=\"el-dorado-server\"})",
                     "legendFormat": "__auto",
                     "refId": "A"
                 }
@@ -253,7 +253,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(ws_connections_active{service_name=\"el-dorado-server\"})",
+                    "expr": "sum(ws_connections_active{job=\"el-dorado-server\"})",
                     "legendFormat": "__auto",
                     "refId": "A"
                 }
@@ -340,7 +340,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(games_active{service_name=\"el-dorado-server\"}) by (visibility)",
+                    "expr": "sum(games_active{job=\"el-dorado-server\"}) by (visibility)",
                     "legendFormat": "{{visibility}}",
                     "refId": "A"
                 }
@@ -427,7 +427,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(rate(card_plays_total{service_name=\"el-dorado-server\"}[5m]))",
+                    "expr": "sum(rate(card_plays_total{job=\"el-dorado-server\"}[5m]))",
                     "legendFormat": "Card Plays / sec",
                     "refId": "A"
                 }
@@ -514,7 +514,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(rate(ws_messages_total{service_name=\"el-dorado-server\"}[5m])) by (type)",
+                    "expr": "sum(rate(ws_messages_total{job=\"el-dorado-server\"}[5m])) by (type)",
                     "legendFormat": "{{type}}",
                     "refId": "A"
                 }
@@ -601,7 +601,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "sum(rate(http_request_duration_ms_count{service_name=\"el-dorado-server\"}[5m])) by (route, method, statusCode)",
+                    "expr": "sum(rate(http_request_duration_ms_count{job=\"el-dorado-server\"}[5m])) by (route, method, statusCode)",
                     "legendFormat": "{{method}} {{route}} ({{statusCode}})",
                     "refId": "A"
                 }
@@ -688,7 +688,7 @@
                         "type": "prometheus",
                         "uid": "Prometheus"
                     },
-                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{service_name=\"el-dorado-server\"}[5m])) by (le, route))",
+                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{job=\"el-dorado-server\"}[5m])) by (le, route))",
                     "legendFormat": "P95 {{route}}",
                     "refId": "A"
                 }
