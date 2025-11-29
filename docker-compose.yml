@@ -23,6 +23,8 @@ services:
     networks:
       - observability
     restart: unless-stopped
+    dns:
+      - 192.168.1.5
 
   loki:
     image: grafana/loki:latest
@@ -38,6 +40,8 @@ services:
     networks:
       - observability
     restart: unless-stopped
+    dns:
+      - 192.168.1.5
 
   prometheus:
     image: prom/prometheus:latest
@@ -55,6 +59,8 @@ services:
     networks:
       - observability
     restart: unless-stopped
+    dns:
+      - 192.168.1.5
   
   tempo:
     image: grafana/tempo:latest
@@ -69,6 +75,8 @@ services:
     networks:
       - observability
     restart: unless-stopped
+    dns:
+      - 192.168.1.5
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -84,3 +92,5 @@ services:
     networks:
       - observability
     restart: unless-stopped
+    dns:
+      - 192.168.1.5
