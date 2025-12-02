@@ -86,7 +86,6 @@ services:
         read_only: true
         bind:
           propagation: rslave
-    user: root
     security_opt:
       - "seccomp=unconfined"
     networks:
