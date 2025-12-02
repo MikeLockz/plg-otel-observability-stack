@@ -112,7 +112,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "otel_system_filesystem_usage{mountpoint=\"$mountpoint\"}",
+          "expr": "otel_system_filesystem_usage_bytes{mountpoint=\"$mountpoint\"}",
           "legendFormat": "{{state}}",
           "range": true,
           "refId": "A"
@@ -181,7 +181,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(otel_system_filesystem_usage{mountpoint=\"$mountpoint\", state=\"used\"}) / sum(otel_system_filesystem_usage{mountpoint=\"$mountpoint\"}) * 100",
+          "expr": "sum(otel_system_filesystem_usage_bytes{mountpoint=\"$mountpoint\", state=\"used\"}) / sum(otel_system_filesystem_usage_bytes{mountpoint=\"$mountpoint\"}) * 100",
           "legendFormat": "Used %",
           "range": true,
           "refId": "A"
@@ -203,14 +203,14 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(otel_system_filesystem_usage, mountpoint)",
+        "definition": "label_values(otel_system_filesystem_usage_bytes, mountpoint)",
         "hide": 0,
         "includeAll": false,
         "multi": false,
         "name": "mountpoint",
         "options": [],
         "query": {
-          "query": "label_values(otel_system_filesystem_usage, mountpoint)",
+          "query": "label_values(otel_system_filesystem_usage_bytes, mountpoint)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
