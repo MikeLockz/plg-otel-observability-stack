@@ -112,13 +112,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "otel_system_filesystem_usage{mountpoint=\"/\"}",
+          "expr": "otel_system_filesystem_usage{mountpoint=\"$mountpoint\"}",
           "legendFormat": "{{state}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Root Filesystem Usage",
+      "title": "Filesystem Usage: $mountpoint",
       "type": "timeseries"
     },
     {
@@ -181,22 +181,45 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(otel_system_filesystem_usage{mountpoint=\"/\", state=\"used\"}) / sum(otel_system_filesystem_usage{mountpoint=\"/\"}) * 100",
+          "expr": "sum(otel_system_filesystem_usage{mountpoint=\"$mountpoint\", state=\"used\"}) / sum(otel_system_filesystem_usage{mountpoint=\"$mountpoint\"}) * 100",
           "legendFormat": "Used %",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Root Usage %",
+      "title": "Usage %: $mountpoint",
       "type": "gauge"
     }
   ],
-  "refresh": "",
+  "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(otel_system_filesystem_usage, mountpoint)",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "mountpoint",
+        "options": [],
+        "query": {
+          "query": "label_values(otel_system_filesystem_usage, mountpoint)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-6h",
