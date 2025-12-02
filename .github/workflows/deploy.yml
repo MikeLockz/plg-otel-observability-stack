@@ -1,32 +1,62 @@
-name: Deploy Observability Stack
+name: Build and Push
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to LXC
+  build-and-push:
     runs-on: self-hosted
-    env:
-      APP_STACK_HOST_IP: ${{ secrets.APP_STACK_HOST_IP }}
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Substitute Env Variables in Prometheus Config
+      # Note: Since this stack uses standard public images (Grafana, Loki, etc.),
+      # we don't strictly need to build/push them to Harbor unless we are customizing them.
+      # However, for GitOps consistency, we can trigger the config update.
+      # If you have custom configs mounted via volumes, Komodo handles that if the repo is cloned.
+      
+      # IMPORTANT: Komodo "From Git" clones the repo. 
+      # So if your docker-compose.yml (or stack.toml) references local files like ./config/...,
+      # Komodo will find them in the cloned repo on the agent.
+      
+      # Therefore, we just need to update the Config Repo to trigger a sync.
+      # We can add a dummy tag update or just rely on the commit to the Config Repo.
+      
+      # BUT, since we are moving to a centralized Config Repo (lockdev-gitops-registry),
+      # we need to make sure the 'config/' files are available to Komodo.
+      # The 'stacks/observability.toml' references './config/...'.
+      # This means Komodo expects 'config/' to be in the SAME repo as the TOML file.
+      
+      # CURRENT PROBLEM: The config files are in THIS repo (plg-otel), but the TOML is in the Config Repo.
+      # Komodo clones the Config Repo. It won't see the config files from this repo.
+      
+      # SOLUTION: We must copy the config files to the Config Repo during CI.
+      
+      - name: Update Config Repo
         run: |
-          envsubst < config/prometheus.yml > config/prometheus.yml.tmp && mv config/prometheus.yml.tmp config/prometheus.yml
-
-      - name: Deploy Docker Compose Stack
-        run: |
-          echo "Starting deployment..."
-          docker compose up -d --build --force-recreate
-          echo "Deployment complete."
-
-      - name: Prune Old Docker Images
-        if: always()
-        run: |
-          echo "Cleaning up old Docker images..."
-          docker image prune -f
+          # 1. Clone the Config Repo
+          git clone https://oauth2:${{ secrets.GH_PAT }}@github.com/MikeLockz/lockdev-gitops-registry.git config-repo
+          
+          # 2. Copy Config Files
+          # We copy the 'config/' directory from this repo to 'stacks/observability-config/' in the Config Repo
+          mkdir -p config-repo/stacks/observability-config
+          cp -r config/* config-repo/stacks/observability-config/
+          
+          # 3. Update paths in TOML to point to the new location
+          # We need to ensure the TOML points to 'stacks/observability-config/...'
+          # Since the TOML is in 'stacks/', the relative path is './observability-config/...'
+          sed -i 's|\./config/|\./observability-config/|g' config-repo/stacks/observability.toml
+          
+          # 4. Commit and Push
+          cd config-repo
+          git config user.name "CI Bot"
+          git config user.email "ci@internal"
+          git add stacks/observability-config/
+          git add stacks/observability.toml
+          git commit -m "Deploy: Update observability configs from ${{ github.sha }}" || echo "No changes to commit"
+          git push
