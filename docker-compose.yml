@@ -77,9 +77,15 @@ services:
       - "4317:4317" # OTLP gRPC
       - "4318:4318" # OTLP HTTP
       - "8889:8889" # Prometheus exporter
+    privileged: true
     volumes:
       - ./config/otel-collector.yml:/etc/otelcol-contrib/config.yaml
-      - /:/hostfs:ro
+      - type: bind
+        source: /
+        target: /hostfs
+        read_only: true
+        bind:
+          propagation: rslave
     user: root
     security_opt:
       - "seccomp=unconfined"
