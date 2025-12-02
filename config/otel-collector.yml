@@ -1,4 +1,12 @@
 receivers:
+  hostmetrics:
+    root_path: /hostfs
+    collection_interval: 30s
+    scrapers:
+      filesystem:
+      load:
+      memory:
+      network:
   otlp:
     protocols:
       grpc:
@@ -34,7 +42,7 @@ service:
       processors: [batch]
       exporters: [debug, otlp/tempo]
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, hostmetrics]
       processors: [batch]
       exporters: [prometheus, debug]
     logs:

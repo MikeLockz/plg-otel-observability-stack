@@ -79,6 +79,7 @@ services:
       - "8889:8889" # Prometheus exporter
     volumes:
       - ./config/otel-collector.yml:/etc/otelcol-contrib/config.yaml
+      - /:/hostfs:ro
     security_opt:
       - "seccomp=unconfined"
     networks:
