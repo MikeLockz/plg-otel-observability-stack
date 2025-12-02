@@ -80,6 +80,7 @@ services:
     volumes:
       - ./config/otel-collector.yml:/etc/otelcol-contrib/config.yaml
       - /:/hostfs:ro
+    user: root
     security_opt:
       - "seccomp=unconfined"
     networks:
