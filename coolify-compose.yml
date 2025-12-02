@@ -1,0 +1,72 @@
+version: '3.8'
+services:
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability-config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./observability-config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    networks:
+      - observability-net
+
+  loki:
+    image: grafana/loki:latest
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability-config/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml -server.http-listen-address=0.0.0.0
+    networks:
+      - observability-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability-config/prometheus.yml:/etc/prometheus/prometheus.config
+      - prometheus_data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.config
+    networks:
+      - observability-net
+
+  tempo:
+    image: grafana/tempo:latest
+    restart: unless-stopped
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./observability-config/tempo-config.yml:/etc/tempo.yml
+      - tempo_data:/tmp/tempo
+    command: -config.file=/etc/tempo.yml
+    networks:
+      - observability-net
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    restart: unless-stopped
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    volumes:
+      - ./observability-config/otel-collector.yml:/etc/otelcol-contrib/config.yaml
+    networks:
+      - observability-net
+
+networks:
+  observability-net:
+    driver: bridge
+
+volumes:
+  grafana_data:
+  loki_data:
+  prometheus_data:
+  tempo_data:
+
