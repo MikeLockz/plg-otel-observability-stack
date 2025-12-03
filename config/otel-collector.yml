@@ -3,6 +3,7 @@ receivers:
     root_path: /hostfs
     collection_interval: 30s
     scrapers:
+      cpu:
       filesystem:
       load:
       memory:
