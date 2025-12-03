@@ -8,6 +8,9 @@ receivers:
       load:
       memory:
       network:
+  docker_stats:
+    endpoint: unix:///var/run/docker.sock
+    collection_interval: 20s
   otlp:
     protocols:
       grpc:
@@ -45,7 +48,7 @@ service:
       processors: [batch]
       exporters: [debug, otlp/tempo]
     metrics:
-      receivers: [otlp, hostmetrics]
+      receivers: [otlp, hostmetrics, docker_stats]
       processors: [batch]
       exporters: [prometheus, debug]
     logs:

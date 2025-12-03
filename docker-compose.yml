@@ -89,6 +89,7 @@ services:
         read_only: true
         bind:
           propagation: rslave
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     security_opt:
       - "seccomp=unconfined"
     networks:
