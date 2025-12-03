@@ -31,7 +31,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -109,7 +109,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "expr": "otel_system_filesystem_usage_bytes{mountpoint=\"$mountpoint\"}",
@@ -124,7 +124,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -178,7 +178,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "expr": "sum(otel_system_filesystem_usage_bytes{mountpoint=\"$mountpoint\", state=\"used\"}) / sum(otel_system_filesystem_usage_bytes{mountpoint=\"$mountpoint\"}) * 100",
@@ -201,7 +201,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus"
+          "uid": "mimir"
         },
         "definition": "label_values(otel_system_filesystem_usage_bytes, mountpoint)",
         "hide": 0,
