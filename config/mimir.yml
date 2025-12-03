@@ -29,19 +29,21 @@ ruler:
   ring:
     kvstore:
       store: memberlist
-  storage:
-    type: s3
-    s3:
-      bucket_name: mimir-ruler
+
+ruler_storage:
+  backend: s3
+  s3:
+    bucket_name: mimir-ruler
 
 alertmanager:
   data_dir: /data/alertmanager
   fallback_config_file: /etc/mimir-alertmanager.yaml
   external_url: http://localhost:9009/alertmanager
-  storage:
-    type: s3
-    s3:
-      bucket_name: mimir-alertmanager
+
+alertmanager_storage:
+  backend: s3
+  s3:
+    bucket_name: mimir-alertmanager
 
 compactor:
   data_dir: /data/compactor
