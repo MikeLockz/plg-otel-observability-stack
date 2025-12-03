@@ -34,3 +34,6 @@ scrape_configs:
           compose_project: el-dorado-tanstack
           compose_service: postgres-exporter
           telemetry_plane: plg
+
+remote_write:
+  - url: http://mimir:9009/api/v1/push

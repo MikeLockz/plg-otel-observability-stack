@@ -7,6 +7,8 @@ volumes:
   loki_data:
   prometheus_data:
   tempo_data:
+  minio_data:
+  mimir_data:
 
 services:
   grafana:
@@ -94,6 +96,38 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     security_opt:
       - "seccomp=unconfined"
+    networks:
+      - observability
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    entrypoint: [""]
+    command: ["sh", "-c", "mkdir -p /data/mimir && minio server /data"]
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - observability
+    restart: unless-stopped
+
+  mimir:
+    image: grafana/mimir:latest
+    container_name: mimir
+    command: ["-config.file=/etc/mimir.yaml"]
+    volumes:
+      - ./config/mimir.yml:/etc/mimir.yaml
+      - ./config/mimir-alertmanager.yml:/etc/mimir-alertmanager.yaml
+      - mimir_data:/data
+    ports:
+      - "9009:9009"
+    depends_on:
+      - minio
     networks:
       - observability
     restart: unless-stopped
