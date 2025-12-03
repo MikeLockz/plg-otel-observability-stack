@@ -13,13 +13,35 @@ common:
       access_key_id: minio
       secret_access_key: minio123
       insecure: true
-      bucket_name: mimir
 
 blocks_storage:
+  backend: s3
+  s3:
+    bucket_name: mimir-blocks
   tsdb:
     dir: /data/ingester
   bucket_store:
     sync_dir: /data/tsdb-sync
+
+ruler:
+  rule_path: /data/ruler
+  alertmanager_url: http://127.0.0.1:8080/alertmanager
+  ring:
+    kvstore:
+      store: memberlist
+  storage:
+    type: s3
+    s3:
+      bucket_name: mimir-ruler
+
+alertmanager:
+  data_dir: /data/alertmanager
+  fallback_config_file: /etc/mimir-alertmanager.yaml
+  external_url: http://localhost:9009/alertmanager
+  storage:
+    type: s3
+    s3:
+      bucket_name: mimir-alertmanager
 
 compactor:
   data_dir: /data/compactor
@@ -33,13 +55,6 @@ ingester:
       store: memberlist
     replication_factor: 1
 
-ruler:
-  rule_path: /data/ruler
-  alertmanager_url: http://127.0.0.1:8080/alertmanager
-  ring:
-    kvstore:
-      store: memberlist
-
 store_gateway:
   sharding_ring:
     replication_factor: 1
@@ -49,8 +64,3 @@ store_gateway:
 memberlist:
   abort_if_cluster_join_fails: false
   join_members: [ mimir ]
-
-alertmanager:
-  data_dir: /data/alertmanager
-  fallback_config_file: /etc/mimir-alertmanager.yaml
-  external_url: http://localhost:9009/alertmanager
