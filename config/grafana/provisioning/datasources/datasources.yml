@@ -13,6 +13,7 @@ datasources:
 
   - name: Loki
     type: loki
+    uid: Loki
     access: proxy
     url: http://loki:3100
     orgId: 1
@@ -21,6 +22,7 @@ datasources:
 
   - name: Tempo
     type: tempo
+    uid: Tempo
     access: proxy
     url: http://tempo:3200
     orgId: 1

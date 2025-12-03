@@ -14,20 +14,21 @@ receivers:
   docker_stats:
     endpoint: unix:///var/run/docker.sock
     collection_interval: 20s
+    api_version: "1.44"
   filelog:
     include:
       - /var/lib/docker/containers/*/*.log
     start_at: end
     include_file_path: true
     include_file_name: false
-    operators:
-      - type: json_parser
-        timestamp:
-          parse_from: time
-          layout: '%Y-%m-%dT%H:%M:%S.%LZ'
-      - type: move
-        from: log
-        to: body
+    # operators:
+    #   - type: json_parser
+    #     timestamp:
+    #       parse_from: time
+    #       layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+    #   - type: move
+    #     from: log
+    #     to: body
   otlp:
     protocols:
       grpc:
@@ -43,7 +44,7 @@ exporters:
       enabled: true
   
   otlphttp/loki:
-    endpoint: "http://loki:3100/loki/api/v1/push"
+    endpoint: "http://loki:3100/otlp"
     tls:
       insecure: true
 
@@ -52,8 +53,7 @@ exporters:
     tls:
       insecure: true
 
-    tls:
-      insecure: true
+
 
 processors:
   batch:
@@ -61,7 +61,7 @@ processors:
     error_mode: ignore
     logs:
       log_record:
-        - 'body matches "(?i)debug"'
+        - 'IsMatch(body, "(?i)debug")'
 
 service:
   pipelines:
