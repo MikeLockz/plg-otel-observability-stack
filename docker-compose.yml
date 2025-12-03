@@ -90,6 +90,7 @@ services:
         bind:
           propagation: rslave
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     security_opt:
       - "seccomp=unconfined"
     networks:

@@ -14,6 +14,20 @@ receivers:
   docker_stats:
     endpoint: unix:///var/run/docker.sock
     collection_interval: 20s
+  filelog:
+    include:
+      - /var/lib/docker/containers/*/*.log
+    start_at: end
+    include_file_path: true
+    include_file_name: false
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: time
+          layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+      - type: move
+        from: log
+        to: body
   otlp:
     protocols:
       grpc:
@@ -38,23 +52,28 @@ exporters:
     tls:
       insecure: true
 
-  debug:
-    verbosity: detailed
+    tls:
+      insecure: true
 
 processors:
   batch:
+  filter/debug:
+    error_mode: ignore
+    logs:
+      log_record:
+        - 'body matches "(?i)debug"'
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug, otlp/tempo]
+      exporters: [otlp/tempo]
     metrics:
       receivers: [otlp, hostmetrics, docker_stats]
       processors: [batch]
-      exporters: [prometheus, debug]
+      exporters: [prometheus]
     logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlphttp/loki, debug]
+      receivers: [otlp, filelog]
+      processors: [batch, filter/debug]
+      exporters: [otlphttp/loki]
