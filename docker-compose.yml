@@ -10,6 +10,7 @@ volumes:
   minio_data:
   mimir_data:
   portainer_data:
+  pyroscope_data:
 
 services:
   grafana:
@@ -150,4 +151,17 @@ services:
       - "9443:9443"
     networks:
       - observability
+
+  pyroscope:
+    image: grafana/pyroscope:latest
+    container_name: pyroscope
+    command: ["-config.file=/etc/pyroscope.yml"]
+    ports:
+      - "4040:4040"
+    volumes:
+      - ./config/pyroscope.yml:/etc/pyroscope.yml
+      - pyroscope_data:/var/lib/pyroscope
+    networks:
+      - observability
+    restart: unless-stopped
     
