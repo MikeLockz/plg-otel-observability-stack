@@ -15,7 +15,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "3004:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
@@ -48,6 +48,7 @@ services:
       - "9090:9090"
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus-rules:/etc/prometheus/rules
       - prometheus_data:/prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
