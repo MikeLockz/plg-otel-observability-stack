@@ -138,7 +138,7 @@ services:
     image: portainer/portainer-ce:latest
     container_name: portainer
     environment:
-      - TRUSTED_ORIGINS=https://portainer.eldorado.lockdev.com
+      - TRUSTED_ORIGINS=portainer.eldorado.lockdev.com
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
