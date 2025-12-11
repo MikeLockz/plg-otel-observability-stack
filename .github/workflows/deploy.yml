@@ -25,6 +25,29 @@ jobs:
           docker compose up -d --build --force-recreate
           echo "Deployment complete."
 
+      - name: Verify Deployment Health
+        run: |
+          echo "Waiting 20s for services to initialize..."
+          sleep 20
+          
+          echo "Checking service status..."
+          # Check if critical services are running
+          FAILED=0
+          for service in portainer grafana prometheus; do
+            if ! docker compose ps --services --filter "status=running" | grep -q "$service"; then
+              echo "❌ Service '$service' is NOT running."
+              echo "Logs for $service:"
+              docker compose logs --tail=20 $service
+              FAILED=1
+            else
+              echo "✅ Service '$service' is running."
+            fi
+          done
+          
+          if [ $FAILED -eq 1 ]; then
+            echo "Deployment failed health check."
+            exit 1
+          fi
       - name: Prune Old Docker Images
         if: always()
         run: |
