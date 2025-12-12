@@ -37,6 +37,8 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 exporters:
+  debug:
+    verbosity: detailed
   prometheus:
     endpoint: 0.0.0.0:8889
     namespace: otel
@@ -50,6 +52,11 @@ exporters:
 
   otlp/tempo:
     endpoint: "tempo:4317"
+    tls:
+      insecure: true
+
+  otlphttp/pyroscope:
+    endpoint: "http://pyroscope:4040"
     tls:
       insecure: true
 
@@ -76,4 +83,8 @@ service:
     logs:
       receivers: [otlp, filelog]
       processors: [batch, filter/debug]
-      exporters: [otlphttp/loki]
+      exporters: [otlphttp/loki, debug]
+    profiles:
+      receivers: [otlp]
+      processors: []
+      exporters: [debug, otlphttp/pyroscope]
