@@ -83,7 +83,7 @@ service:
     logs:
       receivers: [otlp, filelog]
       processors: [batch, filter/debug]
-      exporters: [otlphttp/loki, debug]
+      exporters: [otlphttp/loki]
     profiles:
       receivers: [otlp]
       processors: []
