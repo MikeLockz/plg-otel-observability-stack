@@ -6,7 +6,7 @@ extensions:
 receivers:
   hostmetrics:
     root_path: /hostfs
-    collection_interval: 30s
+    collection_interval: 60s
     scrapers:
       cpu:
       disk:
@@ -18,7 +18,7 @@ receivers:
       processes:
   docker_stats:
     endpoint: unix:///var/run/docker.sock
-    collection_interval: 20s
+    collection_interval: 60s
     api_version: "1.44"
   # filelog:
   #   include:
@@ -109,6 +109,9 @@ processors:
     limit_mib: 1200
     spike_limit_mib: 256
   batch:
+  probabilistic_sampler:
+    hash_seed: 22
+    sampling_percentage: 10
   filter/debug:
     error_mode: ignore
     logs:
@@ -120,7 +123,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, probabilistic_sampler, batch]
       exporters: [otlp/tempo]
     metrics:
       receivers: [otlp, hostmetrics, docker_stats]
