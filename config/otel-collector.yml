@@ -1,3 +1,7 @@
+extensions:
+  docker_observer:
+    endpoint: "unix:///var/run/docker.sock"
+
 receivers:
   hostmetrics:
     root_path: /hostfs
@@ -15,20 +19,56 @@ receivers:
     endpoint: unix:///var/run/docker.sock
     collection_interval: 20s
     api_version: "1.44"
-  filelog:
-    include:
-      - /var/lib/docker/containers/*/*.log
-    start_at: end
-    include_file_path: true
-    include_file_name: false
-    # operators:
-    #   - type: json_parser
-    #     timestamp:
-    #       parse_from: time
-    #       layout: '%Y-%m-%dT%H:%M:%S.%LZ'
-    #   - type: move
-    #     from: log
-    #     to: body
+  # filelog:
+  #   include:
+  #     - /var/lib/docker/containers/*/*.log
+  #   start_at: end
+  #   include_file_path: true
+  #   include_file_name: false
+  #   # operators:
+  #   #   - type: json_parser
+  #   #     timestamp:
+  #   #       parse_from: time
+  #   #       layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+  #   #   - type: move
+  #   #     from: log
+  #   #     to: body
+  
+  receiver_creator:
+    watch_observers: [docker_observer]
+    receivers:
+      filelog:
+        rule: type == "container"
+        config:
+          include:
+            - /var/lib/docker/containers/`container_id`/*.log
+          start_at: end
+          include_file_path: true
+          include_file_name: false
+          operators:
+            - type: json_parser
+              parse_from: body
+              parse_to: body
+              timestamp:
+                parse_from: body.time
+                layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+            # Move the Docker log content to the body
+            - type: move
+              from: body.log
+              to: body
+            # Add container metadata to attributes
+            - type: add
+              field: attributes["service.name"]
+              value: '`name`'
+            - type: add
+              field: attributes["container.name"]
+              value: '`name`'
+            - type: add
+              field: attributes["container.image.name"]
+              value: '`image`'
+            - type: add
+              field: attributes["container.id"]
+              value: '`container_id`'
   otlp:
     protocols:
       grpc:
@@ -71,6 +111,7 @@ processors:
         - 'IsMatch(body, "(?i)debug")'
 
 service:
+  extensions: [docker_observer]
   pipelines:
     traces:
       receivers: [otlp]
@@ -81,7 +122,7 @@ service:
       processors: [batch]
       exporters: [prometheus]
     logs:
-      receivers: [otlp, filelog]
+      receivers: [otlp, receiver_creator]
       processors: [batch, filter/debug]
       exporters: [otlphttp/loki]
     profiles:
