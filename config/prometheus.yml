@@ -9,41 +9,65 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'up|prometheus_tsdb_head_series|prometheus_target_interval_length_seconds|prometheus_rule_group_last_duration_seconds|prometheus_notifications_dropped_total|prometheus_remote_storage_samples_failed_total|prometheus_build_info|prometheus_ready'
+        action: keep
 
   - job_name: 'otel-collector'
     static_configs:
       - targets: ['otel-collector:8889']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: '^(go_|process_|promhttp_|python_|otel_container_blockio_).*'
+        action: drop
 
   - job_name: 'el-dorado-server'
     metrics_path: /metrics
     static_configs:
-      - targets: ['${APP_STACK_HOST_IP}:3001']
+      - targets: ['192.168.1.44:3001']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: '^(go_|process_|promhttp_|python_).*'
+        action: drop
 
   - job_name: el-dorado-node-exporter
     honor_labels: true
     static_configs:
       - targets:
-          - ${APP_STACK_HOST_IP}:9100
+          - 192.168.1.44:9100
         labels:
           compose_project: el-dorado-tanstack
           compose_service: node-exporter-sidecar
           telemetry_plane: plg
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: '^(go_|process_|promhttp_|python_).*'
+        action: drop
 
   - job_name: el-dorado-postgres-exporter
     honor_labels: true
     static_configs:
       - targets:
-          - ${APP_STACK_HOST_IP}:9187
+          - 192.168.1.44:9187
         labels:
           compose_project: el-dorado-tanstack
           compose_service: postgres-exporter
           telemetry_plane: plg
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: '^(go_|process_|promhttp_|python_).*'
+        action: drop
 
   - job_name: 'mcts-ai'
     scrape_interval: 5s
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['${APP_STACK_HOST_IP}:5001']
+      - targets: ['192.168.1.44:5001']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: '^(go_|process_|promhttp_|python_).*'
+        action: drop
 
 remote_write:
   - url: http://mimir:9009/api/v1/push
