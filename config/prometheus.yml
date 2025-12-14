@@ -31,20 +31,6 @@ scrape_configs:
         regex: '^(go_|process_|promhttp_|python_).*'
         action: drop
 
-  - job_name: el-dorado-node-exporter
-    honor_labels: true
-    static_configs:
-      - targets:
-          - 192.168.1.44:9100
-        labels:
-          compose_project: el-dorado-tanstack
-          compose_service: node-exporter-sidecar
-          telemetry_plane: plg
-    metric_relabel_configs:
-      - source_labels: [__name__]
-        regex: '^(go_|process_|promhttp_|python_).*'
-        action: drop
-
   - job_name: el-dorado-postgres-exporter
     honor_labels: true
     static_configs:

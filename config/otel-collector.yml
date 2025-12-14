@@ -137,5 +137,5 @@ service:
       exporters: [otlphttp/loki]
     profiles:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter]
       exporters: [debug, otlphttp/pyroscope]
