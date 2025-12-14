@@ -1,6 +1,7 @@
 extensions:
   docker_observer:
     endpoint: "unix:///var/run/docker.sock"
+    api_version: "1.44"
 
 receivers:
   hostmetrics:
