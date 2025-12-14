@@ -109,6 +109,8 @@ processors:
     limit_mib: 1200
     spike_limit_mib: 256
   batch:
+    send_batch_size: 10000
+    timeout: 1s
   probabilistic_sampler:
     hash_seed: 22
     sampling_percentage: 10
@@ -135,5 +137,5 @@ service:
       exporters: [otlphttp/loki]
     profiles:
       receivers: [otlp]
-      processors: [memory_limiter]
+      processors: [memory_limiter, batch]
       exporters: [debug, otlphttp/pyroscope]

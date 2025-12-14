@@ -39,4 +39,4 @@ storage:
       path: /tmp/tempo/wal
 
 overrides:
-  metrics_generator_processors: [service-graphs, span-metrics, local-blocks]
+  metrics_generator_processors: [span-metrics, local-blocks]
