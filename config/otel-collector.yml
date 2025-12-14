@@ -104,6 +104,10 @@ exporters:
 
 
 processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1200
+    spike_limit_mib: 256
   batch:
   filter/debug:
     error_mode: ignore
@@ -116,17 +120,17 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
+      processors: [memory_limiter, batch]
       exporters: [otlp/tempo]
     metrics:
       receivers: [otlp, hostmetrics, docker_stats]
-      processors: [batch]
+      processors: [memory_limiter, batch]
       exporters: [prometheus]
     logs:
       receivers: [otlp, receiver_creator]
-      processors: [batch, filter/debug]
+      processors: [memory_limiter, batch, filter/debug]
       exporters: [otlphttp/loki]
     profiles:
       receivers: [otlp]
-      processors: []
+      processors: [memory_limiter]
       exporters: [debug, otlphttp/pyroscope]
