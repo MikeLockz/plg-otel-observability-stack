@@ -43,7 +43,7 @@ scrape_configs:
     scrape_interval: 5s
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['${APP_STACK_HOST_IP}:5000']
+      - targets: ['${APP_STACK_HOST_IP}:5001']
 
 remote_write:
   - url: http://mimir:9009/api/v1/push
