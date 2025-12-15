@@ -121,7 +121,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "100 - (avg(rate(otel_system_cpu_time_seconds_total{state=\"idle\"}[1m])) * 100)",
+          "expr": "100 - (avg(rate(otel_system_cpu_time_seconds_total{state=\"idle\", host_name=\"$host\"}[1m])) * 100)",
           "legendFormat": "CPU Usage",
           "range": true,
           "refId": "A"
@@ -210,7 +210,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "otel_system_memory_usage_bytes{state!=\"free\"}",
+          "expr": "otel_system_memory_usage_bytes{state!=\"free\", host_name=\"$host\"}",
           "legendFormat": "{{state}}",
           "range": true,
           "refId": "A"
@@ -299,7 +299,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "100 - (sum(otel_system_filesystem_usage_bytes{state=\"free\"}) / sum(otel_system_filesystem_usage_bytes) * 100)",
+          "expr": "100 - (sum(otel_system_filesystem_usage_bytes{state=\"free\", host_name=\"$host\"}) / sum(otel_system_filesystem_usage_bytes{host_name=\"$host\"}) * 100)",
           "legendFormat": "Disk Usage %",
           "range": true,
           "refId": "A"
@@ -388,7 +388,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "rate(otel_system_network_io_bytes_total[1m])",
+          "expr": "rate(otel_system_network_io_bytes_total{host_name=\"$host\"}[1m])",
           "legendFormat": "{{device}} - {{direction}}",
           "range": true,
           "refId": "A"
@@ -477,7 +477,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "otel_system_processes_count",
+          "expr": "otel_system_processes_count{host_name=\"$host\"}",
           "legendFormat": "{{status}}",
           "range": true,
           "refId": "A"
@@ -579,7 +579,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (container_name) (rate(otel_container_cpu_usage_total[1m]))",
+          "expr": "sum by (container_name) (rate(otel_container_cpu_usage_total{host_name=\"$host\"}[1m]))",
           "legendFormat": "{{container_name}}",
           "range": true,
           "refId": "A"
@@ -668,7 +668,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (container_name) (otel_container_memory_usage_total)",
+          "expr": "sum by (container_name) (otel_container_memory_usage_total{host_name=\"$host\"})",
           "legendFormat": "{{container_name}}",
           "range": true,
           "refId": "A"
@@ -681,9 +681,35 @@
   "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["docker", "host"],
+  "tags": [
+    "docker",
+    "host"
+  ],
   "templating": {
     "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(otel_system_cpu_time_seconds_total, host_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Host",
+        "multi": false,
+        "name": "host",
+        "options": [],
+        "query": {
+          "query": "label_values(otel_system_cpu_time_seconds_total, host_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
       {
         "hide": 0,
         "includeAll": false,

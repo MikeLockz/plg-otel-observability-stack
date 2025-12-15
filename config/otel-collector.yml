@@ -19,7 +19,7 @@ receivers:
   docker_stats:
     endpoint: unix:///var/run/docker.sock
     collection_interval: 60s
-    api_version: "1.44"
+    timeout: 20s
   # filelog:
   #   include:
   #     - /var/lib/docker/containers/*/*.log
@@ -104,6 +104,11 @@ exporters:
 
 
 processors:
+  resourcedetection:
+    detectors: [env, system, docker]
+    timeout: 5s
+    system:
+      hostname_sources: [os]
   memory_limiter:
     check_interval: 1s
     limit_mib: 1200
@@ -129,7 +134,7 @@ service:
       exporters: [otlp/tempo]
     metrics:
       receivers: [otlp, hostmetrics, docker_stats]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, batch, resourcedetection]
       exporters: [prometheus]
     logs:
       receivers: [otlp, receiver_creator]
