@@ -579,7 +579,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (container_name) (rate(otel_container_cpu_usage_total{host_name=\"$host\"}[1m]))",
+          "expr": "sum by (container_name) (rate(otel_container_cpu_usage_nanoseconds_total{host_name=\"$host\"}[1m])) / 1000000000",
           "legendFormat": "{{container_name}}",
           "range": true,
           "refId": "A"
@@ -668,7 +668,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (container_name) (otel_container_memory_usage_total{host_name=\"$host\"})",
+          "expr": "sum by (container_name) (otel_container_memory_usage_total_bytes{host_name=\"$host\"})",
           "legendFormat": "{{container_name}}",
           "range": true,
           "refId": "A"
